@@ -15,7 +15,6 @@ const menu1 = [
   { name: "Hasil", icon: ChartBarIcon, path: "/hasil" },
   { name: "Gacha", icon: GiftIcon, path: "/gacha" },
   { name: "Akun", icon: UsersIcon, path: "/account" },
-  { name: "Admin", icon: UsersIcon, path: "/admin" },
 ];
 
 function Sidebar() {
