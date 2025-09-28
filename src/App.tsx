@@ -6,7 +6,7 @@ import { auth } from "./API/firebase";
 import AppRouter from "./Router/router";
 
 const App: React.FC = () => {
-  const [,setUser] = useState<User | null>(null);
+  const [, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -23,7 +23,15 @@ const App: React.FC = () => {
   }, []);
 
   if (loading) {
-    return <p className="text-center mt-10">Loading...</p>;
+    return (
+      <div className="flex items-center justify-center h-screen w-screen">
+        <img
+          className="w-20 h-20 animate-spin"
+          src="https://www.svgrepo.com/show/173880/loading-arrows.svg"
+          alt="Loading icon"
+        />
+      </div>
+    );
   }
 
   return (

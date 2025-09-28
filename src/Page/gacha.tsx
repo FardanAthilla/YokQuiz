@@ -74,7 +74,7 @@ const GachaWallpaper: React.FC = () => {
   };
 
   return (
-  <div className="flex min-h-screen bg-slate-100 text-white">
+  <div className="flex min-h-screen text-white">
     <Sidebar />
 
     <main className="flex-1 flex flex-col items-center justify-center p-6">

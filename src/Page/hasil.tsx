@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { db, auth } from "../API/firebase";
 import { collection, getDocs } from "firebase/firestore";
+import Sidebar from "../Components/sidebar";
 
 interface Attempt {
   id: string;
@@ -79,8 +80,10 @@ function Hasil() {
     );
   }
 
-  return (
-    <div className="p-6 space-y-4">
+return (
+  <div className="flex">
+    <Sidebar />
+    <div className="p-6 space-y-4 flex-1">
       <h1 className="text-2xl font-bold mb-6">Riwayat Quiz</h1>
       {attempts.map((attempt) => (
         <div
@@ -98,7 +101,9 @@ function Hasil() {
         </div>
       ))}
     </div>
-  );
+  </div>
+);
+
 }
 
 export default Hasil;

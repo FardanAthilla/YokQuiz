@@ -31,7 +31,7 @@ const Account: React.FC = () => {
     .toUpperCase();
 
   return (
-    <div className="flex min-h-screen bg-gray-100">
+    <div className="flex min-h-screen">
       <Sidebar />
       <main className="flex-1 flex items-center justify-center p-6">
         <div className="bg-white shadow-lg rounded-lg p-6 w-full max-w-md text-center">
@@ -51,15 +51,7 @@ const Account: React.FC = () => {
           <h2 className="text-2xl font-bold mb-2">{user.displayName}</h2>
           <p className="text-gray-600 mb-4">{user.email}</p>
 
-          <div className="border-t pt-4 text-sm text-left">
-            <p>
-              <span className="font-semibold">UID:</span> {user.uid}
-            </p>
-            <p>
-              <span className="font-semibold">Email Verified:</span>{" "}
-              {user.emailVerified ? "Ya" : "Belum"}
-            </p>
-          </div>
+
         </div>
       </main>
     </div>

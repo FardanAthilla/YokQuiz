@@ -4,7 +4,6 @@ import Materi from "../Page/materi";
 import Quiz from "../Page/quiz";
 import NotFound from "../error/error";
 import Login from "../Page/login";
-
 import ProtectedRoute from "./protectedroute";
 import PublicRoute from "./publicroute";
 
@@ -18,13 +17,26 @@ import Hasil from "../Page/hasil";
 
 function AppRouter() {
   const [user, setUser] = useState<User | null>(null);
-
+  const [loading, setLoading] = useState(true);
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
+      setLoading(false);
     });
     return () => unsub();
   }, []);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen w-screen">
+        <img
+          className="w-20 h-20 animate-spin"
+          src="https://www.svgrepo.com/show/173880/loading-arrows.svg"
+          alt="Loading icon"
+        />
+      </div>
+    );
+  }
 
   return (
     <Routes>
@@ -69,7 +81,7 @@ function AppRouter() {
           </ProtectedRoute>
         }
       />
-      
+
       <Route
         path="/materi/:subject"
         element={

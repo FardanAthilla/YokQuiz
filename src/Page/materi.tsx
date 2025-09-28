@@ -11,7 +11,7 @@ function Materi() {
   }
 
   return (
-    <div className="flex min-h-screen bg-slate-100">
+    <div className="flex min-h-screen">
       <Sidebar />
       <main className="flex-1 p-6">
         <h1 className="text-3xl font-bold text-center mb-8">
