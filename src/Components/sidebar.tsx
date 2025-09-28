@@ -32,7 +32,7 @@ function Sidebar() {
   };
 
   return (
-    <aside className="w-64 bg-gray-100 text-gray-700 shadow-md h-screen p-4 flex flex-col justify-between">
+    <aside className="w-64 bg-gray-100 text-gray-700 shadow-md h-screen sticky top-0 p-4 flex flex-col justify-between">
       <div>
         <div className="h-16 flex items-center justify-center mb-5 mt-4">
           <img src={logo} alt="YokQuiz" className="h-16" />

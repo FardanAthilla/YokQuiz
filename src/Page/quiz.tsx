@@ -10,7 +10,7 @@ function Quiz() {
   const [current, setCurrent] = useState(0);
   const [score, setScore] = useState(0);
   const [selected, setSelected] = useState("");
-  const [answers, setAnswers] = useState<string[]>([]); 
+  const [answers, setAnswers] = useState<string[]>([]);
   const [showResult, setShowResult] = useState(false);
 
   useEffect(() => {
@@ -58,20 +58,30 @@ function Quiz() {
         question: q.question,
         options: q.options,
         answer: q.answer,
-        userAnswer: answers[idx] || null, // simpan jawaban user juga
+        userAnswer: answers[idx] || null,
       })),
     });
   };
 
   if (questions.length === 0) {
-    return <div className="flex justify-center items-center h-screen">Loading soal...</div>;
+    return (
+      <div className="flex items-center justify-center h-screen w-screen">
+        <img
+          className="w-20 h-20 animate-spin"
+          src="https://www.svgrepo.com/show/173880/loading-arrows.svg"
+          alt="Loading icon"
+        />
+      </div>
+    );
   }
 
   if (showResult) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen">
         <h2 className="text-2xl font-bold">Hasil Quiz</h2>
-        <p className="mt-4 text-lg">Skor kamu: {score} / {questions.length}</p>
+        <p className="mt-4 text-lg">
+          Skor kamu: {score} / {questions.length}
+        </p>
       </div>
     );
   }

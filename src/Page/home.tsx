@@ -1,22 +1,37 @@
 import React, { useEffect, useState } from "react";
-import { onAuthStateChanged } from "firebase/auth";
-import type { User } from "firebase/auth";
-import { auth } from "../API/firebase";
+import { onAuthStateChanged, type User } from "firebase/auth";
+import { auth, db } from "../API/firebase"; // pastikan db diexport dari firebase.ts
 import { useNavigate } from "react-router-dom";
 import Sidebar from "../Components/sidebar";
-import { subjects } from "../Data/Subject";
+import { collection, getDocs } from "firebase/firestore";
 
 const Home: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
   const [imgError, setImgError] = useState(false);
+  const [subjects, setSubjects] = useState<string[]>([]);
   const navigate = useNavigate();
 
+  // auth listener
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       setImgError(false);
     });
     return () => unsubscribe();
+  }, []);
+
+  // fetch subjects dari Firestore
+  useEffect(() => {
+    const fetchSubjects = async () => {
+      const querySnapshot = await getDocs(collection(db, "pelajaran"));
+      const data: string[] = [];
+      querySnapshot.forEach((doc) => {
+        data.push(doc.id); // contoh: "matematika"
+      });
+      setSubjects(data);
+    };
+
+    fetchSubjects();
   }, []);
 
   const fallbackChar = (user?.displayName || user?.email || "U")
@@ -84,25 +99,13 @@ const Home: React.FC = () => {
 
           {/* GRID PELAJARAN */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
-            {Object.keys(subjects).map((key) => (
+            {subjects.map((subject) => (
               <div
-                key={key}
-                onClick={() => navigate(`/materi/${key}`)}
-                className="cursor-pointer bg-white p-6 rounded-xl shadow-md hover:shadow-xl hover:scale-105 transition transform text-center"
+                key={subject}
+                onClick={() => navigate(`/materi/${subject}`)}
+                className="cursor-pointer bg-white p-6 rounded-xl shadow-md hover:shadow-xl hover:scale-105 transition transform text-center capitalize"
               >
-                <h2 className="text-xl font-bold capitalize">
-                  {key === "mtk"
-                    ? "Matematika"
-                    : key === "indo"
-                    ? "Bahasa Indonesia"
-                    : key === "inggris"
-                    ? "Bahasa Inggris"
-                    : key === "ipa"
-                    ? "IPA"
-                    : key === "ips"
-                    ? "IPS"
-                    : "Pendidikan Pancasila"}
-                </h2>
+                <h2 className="text-xl font-bold">{subject}</h2>
               </div>
             ))}
           </div>

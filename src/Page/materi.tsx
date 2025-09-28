@@ -1,44 +1,70 @@
-import { useNavigate, useParams, Navigate } from "react-router-dom";
-import { subjects } from "../Data/Subject";
+import { useParams, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "../API/firebase";
 import Sidebar from "../Components/sidebar";
+
+type Topic = {
+  id: string;
+  title: string;
+  grade: number;
+  image: string;
+};
 
 function Materi() {
   const { subject } = useParams<{ subject: string }>();
   const navigate = useNavigate();
+  const [topics, setTopics] = useState<Topic[]>([]);
 
-  if (!subject || !subjects[subject]) {
-    return <Navigate to="/not-found" replace />;
-  }
+  useEffect(() => {
+    const fetchTopics = async () => {
+      if (!subject) return;
+      const docRef = doc(db, "pelajaran", subject);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        const topicsArray: Topic[] = Object.entries(data).map(
+          ([id, value]: [string, any]) => ({
+            id,
+            title: value.materi,
+            grade: value.kelas,
+            image: value.gambar || "",
+          })
+        );
+        setTopics(topicsArray);
+      }
+    };
+    fetchTopics();
+  }, [subject]);
 
   return (
     <div className="flex min-h-screen">
       <Sidebar />
       <main className="flex-1 p-6">
         <h1 className="text-3xl font-bold text-center mb-8">
-          Pilih Materi{" "}
-          {subject === "mtk"
-            ? "Matematika"
-            : subject === "indo"
-            ? "Bahasa Indonesia"
-            : subject === "inggris"
-            ? "Bahasa Inggris"
-            : subject === "ipa"
-            ? "IPA"
-            : subject === "ips"
-            ? "IPS"
-            : "Pendidikan Pancasila"}
+          Pilih Materi {subject}
         </h1>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
-          {subjects[subject].map((topic) => (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-5xl mx-auto">
+          {topics.map((topic) => (
             <div
-              key={topic}
-              onClick={() =>
-                navigate(`/quiz/${subject}/${topic.toLowerCase()}`)
-              }
-              className="cursor-pointer bg-white p-6 rounded-xl shadow-md hover:shadow-xl hover:scale-105 transition transform text-center"
+              key={topic.id}
+              onClick={() => navigate(`/quiz/${subject}/${topic.id}`)}
+              className="cursor-pointer flex items-center justify-between bg-white p-4 rounded-lg border hover:shadow-md hover:scale-[1.02] transition"
             >
-              <h2 className="text-lg font-semibold">{topic}</h2>
+              <div className="text-left">
+                <h2 className="text-base font-semibold">{topic.title}</h2>
+                <p className="text-sm text-gray-500">
+                  Kelas {topic.grade}
+                </p>
+              </div>
+              {topic.image && (
+                <img
+                  src={topic.image}
+                  alt={topic.title}
+                  className="w-12 h-12 rounded-md object-cover"
+                />
+              )}
             </div>
           ))}
         </div>
