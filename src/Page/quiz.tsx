@@ -1,11 +1,13 @@
 import { useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { fetchQuestions, type Question } from "../API/ApiQuiz";
 import { db, auth } from "../API/firebase";
 import { collection, addDoc } from "firebase/firestore";
 
 function Quiz() {
   const { subject, topic } = useParams<{ subject: string; topic: string }>();
+  const decodedTopic = topic ? decodeURIComponent(topic) : "";
+
   const [questions, setQuestions] = useState<Question[]>([]);
   const [current, setCurrent] = useState(0);
   const [score, setScore] = useState(0);
@@ -13,15 +15,20 @@ function Quiz() {
   const [answers, setAnswers] = useState<string[]>([]);
   const [showResult, setShowResult] = useState(false);
 
-  useEffect(() => {
-    async function loadQuestions() {
-      if (subject && topic) {
-        const data = await fetchQuestions(subject, topic);
-        setQuestions(data);
-      }
+const hasFetched = useRef(false);
+
+useEffect(() => {
+  async function loadQuestions() {
+    if (hasFetched.current) return;
+    hasFetched.current = true;
+
+    if (subject && decodedTopic) {
+      const data = await fetchQuestions(subject, decodedTopic);
+      setQuestions(data);
     }
-    loadQuestions();
-  }, [subject, topic]);
+  }
+  loadQuestions();
+}, [subject, decodedTopic]);
 
   const handleAnswer = () => {
     if (!selected) return;

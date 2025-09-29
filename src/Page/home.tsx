@@ -1,32 +1,40 @@
 import React, { useEffect, useState } from "react";
 import { onAuthStateChanged, type User } from "firebase/auth";
-import { auth, db } from "../API/firebase"; // pastikan db diexport dari firebase.ts
+import { auth, db } from "../API/firebase";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "../Components/sidebar";
 import { collection, getDocs } from "firebase/firestore";
+import Header from "../Components/header";
+
+type Subject = {
+  id: string;
+  gambar?: string;
+  kategori: string;
+};
 
 const Home: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
-  const [imgError, setImgError] = useState(false);
-  const [subjects, setSubjects] = useState<string[]>([]);
+  const [subjects, setSubjects] = useState<Subject[]>([]);
   const navigate = useNavigate();
 
-  // auth listener
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
-      setImgError(false);
     });
     return () => unsubscribe();
   }, []);
 
-  // fetch subjects dari Firestore
   useEffect(() => {
     const fetchSubjects = async () => {
       const querySnapshot = await getDocs(collection(db, "pelajaran"));
-      const data: string[] = [];
-      querySnapshot.forEach((doc) => {
-        data.push(doc.id); // contoh: "matematika"
+      const data: Subject[] = [];
+      querySnapshot.forEach((docSnap) => {
+        const docData = docSnap.data();
+        data.push({
+          id: docSnap.id,
+          gambar: docData.gambar || "",
+          kategori: docData.kategori || "umum", // default kalau belum ada
+        });
       });
       setSubjects(data);
     };
@@ -34,81 +42,57 @@ const Home: React.FC = () => {
     fetchSubjects();
   }, []);
 
-  const fallbackChar = (user?.displayName || user?.email || "U")
-    .charAt(0)
-    .toUpperCase();
+  // ✅ group subjects by kategori
+  const groupedSubjects = subjects.reduce((acc, subject) => {
+    if (!acc[subject.kategori]) acc[subject.kategori] = [];
+    acc[subject.kategori].push(subject);
+    return acc;
+  }, {} as Record<string, Subject[]>);
 
   return (
     <div className="flex min-h-screen">
       <Sidebar />
 
       <div className="flex-1 flex flex-col">
-        {/* HEADER */}
-        <header className="flex items-center justify-between px-6 py-4 bg-white border-b border-gray-200">
-          <div className="flex items-center">
-            <button className="md:hidden text-gray-500 focus:outline-none">
-              <i className="fas fa-bars"></i>
-            </button>
-            <h1 className="text-xl font-semibold text-gray-800 ml-4">
-              Beranda
-            </h1>
-          </div>
-          <div className="flex items-center space-x-4">
-            <button className="text-gray-500 focus:outline-none">
-              <i className="fas fa-bell"></i>
-            </button>
-            <button className="text-gray-500 focus:outline-none">
-              <i className="fas fa-envelope"></i>
-            </button>
+        <Header user={user} />
 
-            {/* USER INFO */}
-            {user ? (
-              <div className="flex items-center space-x-3">
-                <div className="text-right">
-                  <p className="text-sm font-semibold text-gray-800">
-                    {user.displayName || "User"}
-                  </p>
-                  <p className="text-xs text-gray-500">{user.email}</p>
-                </div>
-                {user.photoURL && !imgError ? (
-                  <img
-                    className="w-10 h-10 rounded-full"
-                    src={user.photoURL}
-                    alt="User"
-                    onError={() => setImgError(true)}
-                  />
-                ) : (
-                  <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center">
-                    <span className="text-white text-lg font-bold">
-                      {fallbackChar}
-                    </span>
+        <main className="flex-1 p-8">
+          {Object.entries(groupedSubjects).map(([kategori, subjectList]) => (
+            <div key={kategori} className="mb-10">
+              <h2 className="text-2xl font-bold mb-6 capitalize">
+                {kategori === "umum"
+                  ? "Pelajaran Umum"
+                  : kategori === "bahasa"
+                  ? "Pelajaran Bahasa"
+                  : kategori === "khusus"
+                  ? "Pelajaran Khusus"
+                  : kategori}
+              </h2>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+                {subjectList.map((subject) => (
+                  <div
+                    key={subject.id}
+                    onClick={() => navigate(`/materi/${subject.id}`)}
+                    className="cursor-pointer bg-white rounded-xl shadow-md hover:shadow-xl hover:scale-105 transition transform text-center capitalize overflow-hidden"
+                  >
+                    {subject.gambar && (
+                      <img
+                        src={subject.gambar}
+                        alt={subject.id}
+                        className="w-full h-36 object-cover"
+                      />
+                    )}
+                    <div className="p-3">
+                      <h2 className="text-base font-semibold truncate">
+                        {subject.id}
+                      </h2>
+                    </div>
                   </div>
-                )}
+                ))}
               </div>
-            ) : (
-              <p className="text-gray-600 text-sm">Anda belum login</p>
-            )}
-          </div>
-        </header>
-
-        {/* MAIN */}
-        <main className="flex-1 p-6">
-          <h1 className="text-3xl font-bold text-center mb-8">
-            Pilih Pelajaran
-          </h1>
-
-          {/* GRID PELAJARAN */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
-            {subjects.map((subject) => (
-              <div
-                key={subject}
-                onClick={() => navigate(`/materi/${subject}`)}
-                className="cursor-pointer bg-white p-6 rounded-xl shadow-md hover:shadow-xl hover:scale-105 transition transform text-center capitalize"
-              >
-                <h2 className="text-xl font-bold">{subject}</h2>
-              </div>
-            ))}
-          </div>
+            </div>
+          ))}
         </main>
       </div>
     </div>

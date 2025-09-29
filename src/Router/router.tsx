@@ -14,6 +14,7 @@ import { auth } from "../API/firebase";
 import Account from "../Page/account";
 import GachaWallpaper from "../Page/gacha";
 import Hasil from "../Page/hasil";
+import TambahMateri from "../Page/nambahmateri";
 
 function AppRouter() {
   const [user, setUser] = useState<User | null>(null);
@@ -54,6 +55,14 @@ function AppRouter() {
         element={
           <ProtectedRoute user={user}>
             <Home />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/p"
+        element={
+          <ProtectedRoute user={user}>
+            <TambahMateri />
           </ProtectedRoute>
         }
       />
