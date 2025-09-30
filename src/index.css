@@ -1,5 +1,6 @@
 @import "tailwindcss";
 
-body {
+html, body {
   @apply bg-slate-100;
+  scrollbar-gutter: stable;
 }
