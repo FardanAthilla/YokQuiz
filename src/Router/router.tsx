@@ -14,7 +14,7 @@ import { auth } from "../API/firebase";
 import Account from "../Page/account";
 import GachaWallpaper from "../Page/gacha";
 import Hasil from "../Page/hasil";
-import TambahMateri from "../Page/nambahmateri";
+import TambahMateri from "../error/nambahmateri";
 
 function AppRouter() {
   const [user, setUser] = useState<User | null>(null);

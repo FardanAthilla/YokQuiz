@@ -31,12 +31,14 @@ const Header: React.FC<HeaderProps> = ({ user }) => {
     .toUpperCase();
 
   return (
-    <header className="flex items-center justify-between px-6 py-4 bg-white border-b border-gray-200">
+    <header className="sticky top-0 z-20 flex items-center justify-between px-6 py-4 bg-white border-b border-gray-200">
       <div className="flex items-center">
         <button className="md:hidden text-gray-500 focus:outline-none">
           <i className="fas fa-bars"></i>
         </button>
-        <h1 className="text-xl font-semibold text-gray-800 ml-4">{title}</h1>
+        <h1 className="text-xl font-semibold text-gray-800 ml-4 pl-10 md:pl-0">
+          {title}
+        </h1>
       </div>
 
       <div className="flex items-center space-x-4">
