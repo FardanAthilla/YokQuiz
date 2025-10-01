@@ -14,6 +14,7 @@ const Header: React.FC<HeaderProps> = ({ user }) => {
   const pageTitleMap: Record<string, string> = {
     "/": "Beranda",
     "/hasil": "Hasil",
+    "/koleksi" : "Koleksi",
   };
 
   // ambil title sesuai route

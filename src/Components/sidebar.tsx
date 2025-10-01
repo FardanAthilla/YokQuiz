@@ -3,7 +3,7 @@ import {
   HomeIcon,
   ChartBarIcon,
   GiftIcon,
-  UsersIcon,
+  StarIcon,
   ArrowLeftOnRectangleIcon,
   Bars3Icon,
   XMarkIcon,
@@ -17,7 +17,7 @@ const menu1 = [
   { name: "Beranda", icon: HomeIcon, path: "/" },
   { name: "Hasil", icon: ChartBarIcon, path: "/hasil" },
   { name: "Gacha", icon: GiftIcon, path: "/gacha" },
-  { name: "Akun", icon: UsersIcon, path: "/account" },
+  { name: "Koleksi", icon: StarIcon, path: "/koleksi" },
 ];
 
 function Sidebar() {

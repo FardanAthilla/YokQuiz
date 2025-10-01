@@ -50,7 +50,11 @@ function Hasil() {
         ...doc.data(),
       })) as Attempt[];
 
-      setAttempts(data);
+      const sortedData = data.sort(
+        (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+      );
+
+      setAttempts(sortedData);
     };
     fetchResults();
   }, []);
@@ -150,7 +154,7 @@ function Hasil() {
               ))
             ) : (
               <p className="text-gray-500 text-center py-10">
-                Tidak ada data quiz yang tersedia
+                Belum ada hasil quiz yang anda selesaikan
               </p>
             )}
           </div>

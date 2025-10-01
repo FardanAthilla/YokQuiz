@@ -11,10 +11,9 @@ import { useEffect, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import type { User } from "firebase/auth";
 import { auth } from "../API/firebase";
-import Account from "../Page/account";
 import GachaWallpaper from "../Page/gacha";
 import Hasil from "../Page/hasil";
-import TambahMateri from "../error/nambahmateri";
+import Koleksi from "../Page/koleksi";
 
 function AppRouter() {
   const [user, setUser] = useState<User | null>(null);
@@ -59,14 +58,6 @@ function AppRouter() {
         }
       />
       <Route
-        path="/p"
-        element={
-          <ProtectedRoute user={user}>
-            <TambahMateri />
-          </ProtectedRoute>
-        }
-      />
-      <Route
         path="/hasil"
         element={
           <ProtectedRoute user={user}>
@@ -83,10 +74,10 @@ function AppRouter() {
         }
       />
       <Route
-        path="/account"
+        path="/koleksi"
         element={
           <ProtectedRoute user={user}>
-            <Account />
+            <Koleksi />
           </ProtectedRoute>
         }
       />
