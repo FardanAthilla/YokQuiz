@@ -14,6 +14,7 @@ import { auth } from "../API/firebase";
 import GachaWallpaper from "../Page/gacha";
 import Hasil from "../Page/hasil";
 import Koleksi from "../Page/koleksi";
+import PreviewPage from "../Page/preview";
 
 function AppRouter() {
   const [user, setUser] = useState<User | null>(null);
@@ -49,6 +50,14 @@ function AppRouter() {
         }
       />
 
+      <Route
+        path="/preview/:id"
+        element={
+          <ProtectedRoute user={user}>
+            <PreviewPage />
+          </ProtectedRoute>
+        }
+      />
       <Route
         path="/"
         element={

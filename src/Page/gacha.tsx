@@ -1,128 +1,221 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Sidebar from "../Components/sidebar";
+import Header from "../Components/header";
+import { onAuthStateChanged, type User } from "firebase/auth";
+import { auth, db } from "../API/firebase";
+import {
+  doc,
+  getDoc,
+  updateDoc,
+  collection,
+  getDocs,
+  setDoc,
+} from "firebase/firestore";
 
-type Tier = "Umum" | "Langka" | "Epic" | "Legenda" | "Ancient";
-
-interface Pool {
-  tier: Tier;
-  rate: number;
-  images: string[];
+interface Wallpaper {
+  id: string;
+  name: string;
+  rarity: string;
+  imageUrl: string;
 }
 
-const pools: Pool[] = [
-  {
-    tier: "Umum",
-    rate: 60,
-    images: Array.from({ length: 7 }, (_, i) => `/img/umum${i + 1}.jpg`),
-  },
-  {
-    tier: "Langka",
-    rate: 30,
-    images: Array.from({ length: 5 }, (_, i) => `/img/langka${i + 1}.jpg`),
-  },
-  {
-    tier: "Epic",
-    rate: 7,
-    images: Array.from({ length: 3 }, (_, i) => `/img/epic${i + 1}.jpg`),
-  },
-  {
-    tier: "Legenda",
-    rate: 2.5,
-    images: Array.from({ length: 3 }, (_, i) => `/img/legenda${i + 1}.jpg`),
-  },
-  {
-    tier: "Ancient",
-    rate: 0.5,
-    images: Array.from({ length: 2 }, (_, i) => `/img/ancient${i + 1}.jpg`),
-  },
-];
-
-const getRandomTier = (): Pool => {
-  const roll = Math.random() * 100;
-  let acc = 0;
-  for (const pool of pools) {
-    acc += pool.rate;
-    if (roll <= acc) return pool;
-  }
-  return pools[0];
-};
-
 const GachaWallpaper: React.FC = () => {
-  const [result, setResult] = useState<{ tier: Tier; img: string } | null>(null);
-  const [pullCount, setPullCount] = useState(0);
-  const [sinceAncient, setSinceAncient] = useState(0);
+  const [user, setUser] = useState<User | null>(null);
+  const [coins, setCoins] = useState<number>(0);
+  const [gachaCount, setGachaCount] = useState<number>(0);
+  const [wallpapers, setWallpapers] = useState<Wallpaper[]>([]);
+  const [result, setResult] = useState<Wallpaper | null>(null);
+  const [showResultModal, setShowResultModal] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false); // 🔹 shimmer state
+  const [showRateModal, setShowRateModal] = useState(false); // 🔹 modal drop rate
 
-  const handleGacha = () => {
-    let tierPool: Pool;
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, async (currentUser) => {
+      setUser(currentUser);
 
-    if (sinceAncient >= 99) {
-      tierPool = pools.find((p) => p.tier === "Ancient")!;
-      setSinceAncient(0);
+      if (currentUser) {
+        // Ambil data user
+        const userRef = doc(db, "users", currentUser.uid);
+        const snap = await getDoc(userRef);
+        if (snap.exists()) {
+          setCoins(snap.data().coins || 0);
+          setGachaCount(snap.data().gachaCount || 0);
+        }
+
+        // Ambil semua wallpaper global
+        const wallpaperRef = collection(db, "wallpapers");
+        const docsSnap = await getDocs(wallpaperRef);
+        const list: Wallpaper[] = [];
+        docsSnap.forEach((d) => {
+          const data = d.data() as Wallpaper;
+          const { id, ...rest } = data;
+          list.push({ id: d.id, ...rest });
+        });
+
+        setWallpapers(list);
+      }
+    });
+    return () => unsub();
+  }, []);
+
+  // Fungsi roll rarity
+  const rollRarity = (): string => {
+    const rand = Math.random() * 100;
+    if (rand < 60) return "common";
+    if (rand < 85) return "rare";
+    if (rand < 95) return "epic";
+    if (rand < 99.5) return "legend";
+    return "ancient";
+  };
+
+  // Fungsi gacha
+  const handleGacha = async () => {
+    if (!user) return;
+    if (coins < 20) {
+      alert("Coins tidak cukup!");
+      return;
+    }
+
+    let chosen: Wallpaper | null = null;
+
+    // Cek pity (jaminan ancient)
+    if ((gachaCount + 1) % 100 === 0) {
+      const ancientList = wallpapers.filter((w) => w.rarity === "ancient");
+      chosen = ancientList[Math.floor(Math.random() * ancientList.length)];
     } else {
-      tierPool = getRandomTier();
-      if (tierPool.tier === "Ancient") {
-        setSinceAncient(0);
-      } else {
-        setSinceAncient((prev) => prev + 1);
+      const rarity = rollRarity();
+      const filtered = wallpapers.filter((w) => w.rarity === rarity);
+      if (filtered.length > 0) {
+        chosen = filtered[Math.floor(Math.random() * filtered.length)];
       }
     }
 
-    const img =
-      tierPool.images[Math.floor(Math.random() * tierPool.images.length)];
-    setResult({ tier: tierPool.tier, img });
-    setPullCount((prev) => prev + 1);
+    if (!chosen) {
+      alert("Tidak ada wallpaper tersedia!");
+      return;
+    }
+
+    // Update user data
+    const userRef = doc(db, "users", user.uid);
+    await updateDoc(userRef, {
+      coins: coins - 20,
+      gachaCount: gachaCount + 1,
+    });
+
+    // Simpan ke koleksi user
+    const ownedRef = doc(db, "users", user.uid, "wallpapers", chosen.id);
+    await setDoc(ownedRef, { owned: true }, { merge: true });
+
+    // Update state
+    setCoins(coins - 20);
+    setGachaCount(gachaCount + 1);
+    setResult(chosen);
+    setImageLoaded(false); // reset shimmer
+    setShowResultModal(true);
   };
 
   return (
-  <div className="flex min-h-screen text-white">
-    <Sidebar />
+    <div className="flex min-h-screen bg-stan-100">
+      <Sidebar />
+      <div className="flex-1 flex flex-col">
+        <Header user={user} />
+        <main className="flex-1 p-6">
+          <div className="bg-white shadow rounded-lg p-6">
+            <h2 className="text-lg font-semibold text-gray-700 mb-4">
+              Gacha Wallpaper
+            </h2>
+            <p className="text-gray-600">Coins: {coins}</p>
+            <p className="text-gray-600">Total Gacha: {gachaCount}</p>
 
-    <main className="flex-1 flex flex-col items-center justify-center p-6">
-      <h1 className="text-3xl font-bold mb-6 text-black">🎉 Gacha Wallpaper 🎉</h1>
+            <div className="flex gap-4 mt-4">
+              <button
+                onClick={handleGacha}
+                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
+                disabled={showResultModal} // cegah double gacha pas animasi
+              >
+                Gacha (20 Coins)
+              </button>
 
-      <button
-        onClick={handleGacha}
-        className="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-2xl shadow-md transition"
-      >
-        Gacha Sekarang
-      </button>
+              <button
+                onClick={() => setShowRateModal(true)}
+                className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
+              >
+                Lihat Drop Rate
+              </button>
+            </div>
+          </div>
+        </main>
+      </div>
 
-      <p className="mt-4 text-sm text-gray-500">
-        Total Pull: <span className="font-semibold">{pullCount}</span> | Sejak
-        Ancient terakhir: <span className="font-semibold">{sinceAncient}</span>
-      </p>
+      {/* 🔹 Modal Result */}
+      {showResultModal && result && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 px-4">
+          <div className="bg-white rounded-lg p-6 text-center shadow-lg w-80">
+            <h3 className="text-xl font-bold">Kamu mendapatkan!</h3>
+            <p className="mt-2 text-lg font-semibold">{result.name}</p>
 
-      {result && (
-        <div className="mt-8 text-center">
-          <p className="text-xl font-semibold mb-4">
-            Kamu mendapat:{" "}
-            <span
-              className={
-                result.tier === "Ancient"
-                  ? "text-purple-400"
-                  : result.tier === "Legenda"
-                  ? "text-yellow-400"
-                  : result.tier === "Epic"
-                  ? "text-pink-400"
-                  : result.tier === "Langka"
-                  ? "text-blue-400"
-                  : "text-gray-300"
-              }
+            {/* 🔹 shimmer wrapper */}
+            <div className="w-full h-32 rounded-md relative overflow-hidden mt-2">
+              {!imageLoaded && (
+                <div className="absolute inset-0 animate-pulse bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 rounded-md" />
+              )}
+              <img
+                src={result.imageUrl}
+                alt={result.name}
+                loading="lazy"
+                onLoad={() => setImageLoaded(true)}
+                className={`w-full h-32 object-cover rounded-md transition-opacity duration-500 ${
+                  imageLoaded ? "opacity-100" : "opacity-0"
+                }`}
+              />
+            </div>
+
+            <p className="mt-2 italic capitalize">Rarity: {result.rarity}</p>
+
+            {gachaCount % 100 === 0 && (
+              <p className="mt-3 text-red-600 font-bold">
+                🎉 Pity Reward: Ancient Wallpaper!
+              </p>
+            )}
+
+            <button
+              onClick={() => setShowResultModal(false)}
+              className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
             >
-              {result.tier}
-            </span>
-          </p>
-          <img
-            src={result.img}
-            alt={result.tier}
-            className="w-64 h-64 object-cover rounded-xl shadow-lg border-4 border-white"
-          />
+              Tutup
+            </button>
+          </div>
         </div>
       )}
-    </main>
-  </div>
-);
 
+      {/* 🔹 Modal Drop Rate */}
+      {showRateModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 px-4">
+          <div className="bg-white rounded-lg p-6 shadow-lg w-96">
+            <h3 className="text-xl font-bold text-center mb-4">Drop Rate</h3>
+            <ul className="space-y-2 text-gray-700">
+              <li>Common: 60%</li>
+              <li>Rare: 30%</li>
+              <li>Epic: 7%</li>
+              <li>Legend: 2.5%</li>
+              <li>Ancient: 0.5%</li>
+            </ul>
+            <p className="mt-4 text-sm text-gray-500 text-center">
+              Setiap 100x gacha, dijamin dapat 1 Ancient Wallpaper
+            </p>
+            <div className="mt-4 text-center">
+              <button
+                onClick={() => setShowRateModal(false)}
+                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              >
+                Tutup
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 };
 
 export default GachaWallpaper;
