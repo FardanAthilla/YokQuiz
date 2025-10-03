@@ -8,12 +8,13 @@ export type Question = {
 
 export async function fetchQuestions(
   subject: string,
-  topic: string
+  topic: string,
+  jumlah: number
 ): Promise<Question[]> {
   try {
-    console.log("=== INPUT fetchQuestions ===", subject, topic);
+    console.log("=== INPUT fetchQuestions ===", subject, topic, jumlah);
 
-    const prompt = `Buatkan 5 soal kuiz ${subject} dengan materi ${topic}.
+    const prompt = `Buatkan ${jumlah} soal kuiz ${subject} dengan materi ${topic}.
 Balas hanya dalam format JSON array tanpa penjelasan apapun.
 Contoh format:
 [

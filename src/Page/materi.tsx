@@ -46,7 +46,6 @@ function Materi() {
             <div className="mb-6">
               <button
                 onClick={() => navigate(-1)}
-
                 className="flex items-center gap-2 py-2"
               >
                 <svg
@@ -73,7 +72,9 @@ function Materi() {
                 <div
                   key={index}
                   onClick={() =>
-                    navigate(`/quiz/${subject}/${encodeURIComponent(materi)}`)
+                    navigate(
+                      `/prepare/${subject}/${encodeURIComponent(materi)}`
+                    )
                   }
                   className="cursor-pointer flex items-center justify-between bg-white p-4 rounded-lg border hover:shadow-md hover:scale-[1.02] transition"
                 >

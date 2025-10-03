@@ -61,11 +61,11 @@ const GachaWallpaper: React.FC = () => {
   // Fungsi roll rarity
   const rollRarity = (): string => {
     const rand = Math.random() * 100;
-    if (rand < 60) return "common";
-    if (rand < 85) return "rare";
-    if (rand < 95) return "epic";
-    if (rand < 99.5) return "legend";
-    return "ancient";
+    if (rand < 60) return "Common";
+    if (rand < 90) return "Rare";
+    if (rand < 97) return "Epic";
+    if (rand < 98.5) return "Legend";
+    return "Exclusive";
   };
 
   // Fungsi gacha
@@ -78,10 +78,10 @@ const GachaWallpaper: React.FC = () => {
 
     let chosen: Wallpaper | null = null;
 
-    // Cek pity (jaminan ancient)
     if ((gachaCount + 1) % 100 === 0) {
-      const ancientList = wallpapers.filter((w) => w.rarity === "ancient");
-      chosen = ancientList[Math.floor(Math.random() * ancientList.length)];
+      const pityRarity = Math.random() < 0.5 ? "Legend" : "Exclusive"; // 50:50 chance
+      const pityList = wallpapers.filter((w) => w.rarity === pityRarity);
+      chosen = pityList[Math.floor(Math.random() * pityList.length)];
     } else {
       const rarity = rollRarity();
       const filtered = wallpapers.filter((w) => w.rarity === rarity);
@@ -115,37 +115,47 @@ const GachaWallpaper: React.FC = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-stan-100">
+    <div className="flex min-h-screen">
       <Sidebar />
       <div className="flex-1 flex flex-col">
-        <Header user={user} />
-        <main className="flex-1 p-6">
-          <div className="bg-white shadow rounded-lg p-6">
-            <h2 className="text-lg font-semibold text-gray-700 mb-4">
-              Gacha Wallpaper
-            </h2>
-            <p className="text-gray-600">Coins: {coins}</p>
-            <p className="text-gray-600">Total Gacha: {gachaCount}</p>
-
-            <div className="flex gap-4 mt-4">
-              <button
-                onClick={handleGacha}
-                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
-                disabled={showResultModal} // cegah double gacha pas animasi
-              >
-                Gacha (20 Coins)
-              </button>
-
-              <button
-                onClick={() => setShowRateModal(true)}
-                className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
-              >
-                Lihat Drop Rate
-              </button>
-            </div>
-          </div>
-        </main>
+  <Header user={user} />
+  <main className="flex-1 p-6">
+    <div className="bg-white shadow rounded-lg p-6">
+      {/* Banner Gacha */}
+      <div className="mb-4">
+        <img
+          src="/images/gacha-banner.jpg"
+          alt="Gacha Banner"
+          className="w-full rounded-lg shadow-md"
+        />
       </div>
+
+      <h2 className="text-lg font-semibold text-gray-700 mb-4">
+        Gacha Wallpaper
+      </h2>
+      <p className="text-gray-600">Coins: {coins}</p>
+      <p className="text-gray-600">Total Gacha: {gachaCount}</p>
+
+      <div className="flex gap-4 mt-4">
+        <button
+          onClick={handleGacha}
+          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
+          disabled={showResultModal}
+        >
+          Gacha (20 Coins)
+        </button>
+
+        <button
+          onClick={() => setShowRateModal(true)}
+          className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
+        >
+          Lihat Drop Rate
+        </button>
+      </div>
+    </div>
+  </main>
+</div>
+
 
       {/* 🔹 Modal Result */}
       {showResultModal && result && (
@@ -174,7 +184,7 @@ const GachaWallpaper: React.FC = () => {
 
             {gachaCount % 100 === 0 && (
               <p className="mt-3 text-red-600 font-bold">
-                🎉 Pity Reward: Ancient Wallpaper!
+                🎉 Pity Reward
               </p>
             )}
 
@@ -197,11 +207,14 @@ const GachaWallpaper: React.FC = () => {
               <li>Common: 60%</li>
               <li>Rare: 30%</li>
               <li>Epic: 7%</li>
-              <li>Legend: 2.5%</li>
-              <li>Ancient: 0.5%</li>
+              <li>Legend: 1.5%</li>
+              <li>Exclusive: 1.5%</li>
             </ul>
-            <p className="mt-4 text-sm text-gray-500 text-center">
-              Setiap 100x gacha, dijamin dapat 1 Ancient Wallpaper
+            <p className="mt-4 text-sm text-gray-500 text-left">
+              Setiap 100x gacha, dijamin dapat 1 Legend/Exclusive Wallpaper acak.
+            </p>
+            <p className="mt-1 text-sm text-gray-500 text-left">
+              Setiap wallpaper duplikat tidak akan memberikan apa-apa.
             </p>
             <div className="mt-4 text-center">
               <button

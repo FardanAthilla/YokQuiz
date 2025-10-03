@@ -124,7 +124,7 @@ function Hasil() {
                   <div
                     className={`px-6 transition-all duration-300 overflow-hidden ${
                       openAttempt === attempt.id
-                        ? "max-h-[1000px] pb-6"
+                        ? "max-h-[9999px] pb-6"
                         : "max-h-0"
                     }`}
                   >

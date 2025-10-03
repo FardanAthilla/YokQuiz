@@ -17,37 +17,45 @@ type Wallpaper = {
 // 🔹 Komponen untuk 1 kartu wallpaper
 const WallpaperCard: React.FC<{ wp: Wallpaper }> = ({ wp }) => {
   const [loaded, setLoaded] = useState(false);
-  const navigate = useNavigate(); // ⬅️ tambahin ini
+  const navigate = useNavigate();
 
   return (
     <div
-      onClick={() => navigate(`/preview/${wp.id}`)} // ⬅️ klik pindah ke preview
+      onClick={() => navigate(`/preview/${wp.id}`)}
       className="relative bg-white rounded-lg shadow p-2 flex flex-col items-center justify-center cursor-pointer hover:shadow-lg transition"
     >
-      {!loaded && <div className="w-full h-32 rounded-md shimmer" />}
+      {/* Container gambar */}
+      <div className="relative w-full h-32 rounded-md overflow-hidden">
+        {/* Shimmer loader */}
+        {!loaded && (
+          <div className="absolute inset-0 bg-gray-300 animate-pulse rounded-md" />
+        )}
 
-      <img
-        src={wp.imageUrl}
-        alt={wp.name}
-        loading="lazy"
-        onLoad={() => setLoaded(true)}
-        className={`w-full h-32 object-cover rounded-md transition-opacity duration-500 ${
-          wp.owned ? "" : "opacity-30"
-        } ${loaded ? "opacity-100" : "opacity-0 absolute"}`}
-      />
+        {/* Gambar */}
+        <img
+          src={wp.imageUrl}
+          alt={wp.name}
+          loading="lazy"
+          onLoad={() => setLoaded(true)}
+          className={`w-full h-full object-cover rounded-md transition-opacity duration-500 ${
+            loaded ? "opacity-100" : "opacity-0"
+          } ${wp.owned ? "" : "opacity-30"}`}
+        />
 
+        {/* 🔒 Overlay */}
+        {!wp.owned && (
+          <div className="absolute inset-0 flex items-center justify-center text-2xl bg-gray-800/50 rounded-md">
+            🔒
+          </div>
+        )}
+      </div>
+
+      {/* Info bawah */}
       <p className="mt-2 font-semibold text-sm">{wp.name}</p>
       <span className="text-xs text-gray-500">{wp.rarity}</span>
-
-      {!wp.owned && (
-        <div className="absolute inset-0 flex items-center justify-center text-2xl">
-          🔒
-        </div>
-      )}
     </div>
   );
 };
-
 
 const Koleksi: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -61,7 +69,15 @@ const Koleksi: React.FC = () => {
     return () => unsub();
   }, []);
 
-  // 🔹 Fetch semua wallpaper global + data user
+  // 🔹 mapping rarity ke angka biar gampang sorting
+  const rarityOrder: Record<string, number> = {
+    Common: 1,
+    Rare: 2,
+    Epic: 3,
+    Legend: 4,
+    Exclusive: 5,
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -74,6 +90,8 @@ const Koleksi: React.FC = () => {
           })
         );
 
+        let merged: Wallpaper[] = [];
+
         if (user) {
           // Ambil koleksi user
           const userWallpapersSnap = await getDocs(
@@ -83,15 +101,21 @@ const Koleksi: React.FC = () => {
             .filter((d) => d.data().owned)
             .map((d) => d.id);
 
-          // Tandai mana yang user punya
-          const merged = allWallpapers.map((wp) => ({
+          merged = allWallpapers.map((wp) => ({
             ...wp,
             owned: ownedIds.includes(wp.id),
           }));
-          setWallpapers(merged);
         } else {
-          setWallpapers(allWallpapers);
+          merged = allWallpapers;
         }
+
+        // 🔹 Urutkan berdasarkan rarity
+        merged.sort(
+          (a, b) =>
+            (rarityOrder[a.rarity] || 999) - (rarityOrder[b.rarity] || 999)
+        );
+
+        setWallpapers(merged);
       } catch (error) {
         console.error("Error fetching wallpapers:", error);
       }

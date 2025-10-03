@@ -14,7 +14,8 @@ const Header: React.FC<HeaderProps> = ({ user }) => {
   const pageTitleMap: Record<string, string> = {
     "/": "Beranda",
     "/hasil": "Hasil",
-    "/koleksi" : "Koleksi",
+    "/koleksi": "Koleksi",
+    "/gacha": "Gacha",
   };
 
   // ambil title sesuai route
@@ -25,6 +26,9 @@ const Header: React.FC<HeaderProps> = ({ user }) => {
     title = "Materi";
   } else if (location.pathname.startsWith("/quiz")) {
     title = "Quiz";
+  }
+    else if (location.pathname.startsWith("/prepare")) {
+    title = "Persiapan Quiz";
   }
 
   const fallbackChar = (user?.displayName || user?.email || "U")

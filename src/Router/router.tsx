@@ -15,6 +15,7 @@ import GachaWallpaper from "../Page/gacha";
 import Hasil from "../Page/hasil";
 import Koleksi from "../Page/koleksi";
 import PreviewPage from "../Page/preview";
+import QuizSetup from "../Page/quizsetup";
 
 function AppRouter() {
   const [user, setUser] = useState<User | null>(null);
@@ -91,6 +92,7 @@ function AppRouter() {
         }
       />
 
+      <Route path="/prepare/:subject/:materi" element={<QuizSetup />} />
       <Route
         path="/materi/:subject"
         element={
