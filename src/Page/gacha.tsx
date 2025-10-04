@@ -11,6 +11,7 @@ import {
   getDocs,
   setDoc,
 } from "firebase/firestore";
+import banner from "../assets/banner.png";
 
 interface Wallpaper {
   id: string;
@@ -118,25 +119,27 @@ const GachaWallpaper: React.FC = () => {
     <div className="flex min-h-screen">
       <Sidebar />
       <div className="flex-1 flex flex-col">
-  <Header user={user} />
-  <main className="flex-1 p-6">
-    <div className="bg-white shadow rounded-lg p-6">
-      {/* Banner Gacha */}
-      <div className="mb-4">
-        <img
-          src="/images/gacha-banner.jpg"
-          alt="Gacha Banner"
-          className="w-full rounded-lg shadow-md"
-        />
+        <Header user={user} />
+<main className="flex-1 p-6">
+  <div className="bg-white shadow rounded-lg p-6 flex flex-col md:flex-row items-center md:items-stretch gap-6">
+    {/* Banner Gacha */}
+    <img
+      src={banner}
+      alt="Gacha Banner"
+      className="w-full md:w-1/3 h-auto md:h-auto object-cover rounded-lg shadow-md"
+    />
+
+    {/* Container teks + tombol */}
+    <div className="flex-1 flex flex-col justify-between gap-2">
+      <div>
+        <h2 className="text-lg font-semibold text-gray-700">
+          Gacha Wallpaper
+        </h2>
+        <p className="text-gray-600">Coins: {coins}</p>
+        <p className="text-gray-600">Total Gacha: {gachaCount}</p>
       </div>
 
-      <h2 className="text-lg font-semibold text-gray-700 mb-4">
-        Gacha Wallpaper
-      </h2>
-      <p className="text-gray-600">Coins: {coins}</p>
-      <p className="text-gray-600">Total Gacha: {gachaCount}</p>
-
-      <div className="flex gap-4 mt-4">
+      <div className="flex gap-2 mt-2">
         <button
           onClick={handleGacha}
           className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
@@ -153,9 +156,10 @@ const GachaWallpaper: React.FC = () => {
         </button>
       </div>
     </div>
-  </main>
-</div>
+  </div>
+</main>
 
+      </div>
 
       {/* 🔹 Modal Result */}
       {showResultModal && result && (
@@ -183,9 +187,7 @@ const GachaWallpaper: React.FC = () => {
             <p className="mt-2 italic capitalize">Rarity: {result.rarity}</p>
 
             {gachaCount % 100 === 0 && (
-              <p className="mt-3 text-red-600 font-bold">
-                🎉 Pity Reward
-              </p>
+              <p className="mt-3 text-red-600 font-bold">🎉 Pity Reward</p>
             )}
 
             <button
@@ -211,7 +213,8 @@ const GachaWallpaper: React.FC = () => {
               <li>Exclusive: 1.5%</li>
             </ul>
             <p className="mt-4 text-sm text-gray-500 text-left">
-              Setiap 100x gacha, dijamin dapat 1 Legend/Exclusive Wallpaper acak.
+              Setiap 100x gacha, dijamin dapat 1 Legend/Exclusive Wallpaper
+              acak.
             </p>
             <p className="mt-1 text-sm text-gray-500 text-left">
               Setiap wallpaper duplikat tidak akan memberikan apa-apa.

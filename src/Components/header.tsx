@@ -26,9 +26,8 @@ const Header: React.FC<HeaderProps> = ({ user }) => {
     title = "Materi";
   } else if (location.pathname.startsWith("/quiz")) {
     title = "Quiz";
-  }
-    else if (location.pathname.startsWith("/prepare")) {
-    title = "Persiapan Quiz";
+  } else if (location.pathname.startsWith("/prepare")) {
+    title = "Persiapan";
   }
 
   const fallbackChar = (user?.displayName || user?.email || "U")
@@ -41,7 +40,7 @@ const Header: React.FC<HeaderProps> = ({ user }) => {
         <button className="md:hidden text-gray-500 focus:outline-none">
           <i className="fas fa-bars"></i>
         </button>
-        <h1 className="text-xl font-semibold text-gray-800 ml-4 pl-10 md:pl-0">
+        <h1 className="text-base sm:text-lg md:text-xl font-semibold text-gray-800 ml-2 md:ml-4 pl-2 md:pl-0">
           {title}
         </h1>
       </div>
