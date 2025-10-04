@@ -40,7 +40,7 @@ const Header: React.FC<HeaderProps> = ({ user }) => {
         <button className="md:hidden text-gray-500 focus:outline-none">
           <i className="fas fa-bars"></i>
         </button>
-        <h1 className="text-base sm:text-lg md:text-xl font-semibold text-gray-800 ml-2 md:ml-4 pl-2 md:pl-0">
+        <h1 className="text-base sm:text-lg md:text-xl font-semibold text-gray-800 ml-2 md:ml-4 pl-7 md:pl-0">
           {title}
         </h1>
       </div>
