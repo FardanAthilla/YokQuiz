@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import { signInWithPopup } from "firebase/auth";
-import { auth, googleProvider } from "../API/firebase";
+import { auth, googleProvider, db } from "../API/firebase";
 import { useNavigate } from "react-router-dom";
+import { doc, getDoc, setDoc } from "firebase/firestore";
+
 import ilustrasi from "../assets/Illustration.png";
 import teks from "../assets/Name.png";
 import Logo from "../assets/Icon.png";
@@ -16,14 +18,34 @@ const Login: React.FC = () => {
     setLoading(true);
     setButtonHidden(true);
     try {
+      // 🔹 Login pakai Google
       const result = await signInWithPopup(auth, googleProvider);
-      console.log("Login berhasil:", result.user);
+      const user = result.user;
+      console.log("✅ Login berhasil:", user.uid, user.email);
+
+      // 🔹 Cek apakah user sudah ada di Firestore
+      const userRef = doc(db, "users", user.uid);
+      const userSnap = await getDoc(userRef);
+
+      if (!userSnap.exists()) {
+        // 🔹 Kalau belum ada, buat user baru dengan data awal
+        await setDoc(userRef, {
+          coins: 100, // kamu bisa ubah default coin awal di sini
+          gachaCount: 0,
+          selectedWallpapers: null,
+        });
+        console.log("🆕 User baru dibuat di Firestore:", user.uid);
+      } else {
+        console.log("👤 User sudah ada di Firestore:", user.uid);
+      }
+
       navigate("/");
     } catch (error) {
       console.error(error);
       setErrorMsg("Login gagal atau dibatalkan!");
       setTimeout(() => setErrorMsg(null), 2000);
       setLoading(false);
+      setButtonHidden(false);
     }
   };
 
