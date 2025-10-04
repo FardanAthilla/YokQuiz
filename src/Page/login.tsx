@@ -3,7 +3,7 @@ import { signInWithPopup } from "firebase/auth";
 import { auth, googleProvider } from "../API/firebase";
 import { useNavigate } from "react-router-dom";
 import ilustrasi from "../assets/Ilustrasi.png";
-import teks from "../assets/teks.png";
+import teks from "../assets/Teks.png";
 import Logo from "../assets/Logo.png";
 
 const Login: React.FC = () => {
