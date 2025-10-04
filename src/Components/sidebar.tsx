@@ -8,7 +8,7 @@ import {
   Bars3Icon,
   XMarkIcon,
 } from "@heroicons/react/24/outline";
-import logo from "../assets/Logo2.png";
+import logo from "../assets/Icon2.png";
 import { signOut } from "firebase/auth";
 import { auth } from "../API/firebase";
 import { useState } from "react";

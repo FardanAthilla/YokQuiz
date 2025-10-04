@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import { signInWithPopup } from "firebase/auth";
 import { auth, googleProvider } from "../API/firebase";
 import { useNavigate } from "react-router-dom";
-import ilustrasi from "../assets/Ilustrasi.png";
-import teks from "../assets/Teks.png";
-import Logo from "../assets/Logo.png";
+import ilustrasi from "../assets/Illustration.png";
+import teks from "../assets/Name.png";
+import Logo from "../assets/Icon.png";
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
