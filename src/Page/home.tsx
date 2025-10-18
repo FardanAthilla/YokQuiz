@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import Sidebar from "../Components/sidebar";
 import { collection, getDocs } from "firebase/firestore";
 import Header from "../Components/header";
+import { FaInstagram, FaGithub, FaLinkedin } from "react-icons/fa";
 
 type Subject = {
   id: string;
@@ -33,7 +34,7 @@ const Home: React.FC = () => {
         data.push({
           id: docSnap.id,
           gambar: docData.gambar || "",
-          kategori: docData.kategori || "umum", // default kalau belum ada
+          kategori: docData.kategori || "umum",
         });
       });
       setSubjects(data);
@@ -42,7 +43,6 @@ const Home: React.FC = () => {
     fetchSubjects();
   }, []);
 
-  // ✅ group subjects by kategori
   const groupedSubjects = subjects.reduce((acc, subject) => {
     if (!acc[subject.kategori]) acc[subject.kategori] = [];
     acc[subject.kategori].push(subject);
@@ -50,13 +50,15 @@ const Home: React.FC = () => {
   }, {} as Record<string, Subject[]>);
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen bg-gray-50">
+      {/* Sidebar tetap di kiri */}
       <Sidebar />
 
-      <div className="flex-1 flex flex-col">
+      {/* Konten utama */}
+      <div className="flex flex-col flex-1 min-h-screen">
         <Header user={user} />
 
-        <main className="flex-1 p-8">
+        <main className="flex-1 p-8 overflow-y-auto">
           {Object.entries(groupedSubjects).map(([kategori, subjectList]) => (
             <div key={kategori} className="mb-10">
               <h2 className="text-2xl font-bold mb-6 capitalize">
@@ -65,7 +67,7 @@ const Home: React.FC = () => {
                   : kategori === "bahasa"
                   ? "Pelajaran Bahasa"
                   : kategori === "khusus"
-                  ? "Pelajaran Khusus"
+                  ? "UTBK"
                   : kategori}
               </h2>
 
@@ -94,6 +96,45 @@ const Home: React.FC = () => {
             </div>
           ))}
         </main>
+
+        {/* ✅ Footer */}
+        <footer className="bg-blue-500 text-white py-6 mt-auto">
+          <div className="container mx-auto px-6 text-center">
+            <div className="flex justify-center space-x-8 mb-4">
+              <a
+                href="https://www.instagram.com/fardan_athilla/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-gray-400 transition"
+              >
+                <FaInstagram className="h-6 w-6 inline" />
+              </a>
+              <a
+                href="https://github.com/FardanAthilla/YokQuiz"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-gray-400 transition"
+              >
+                <FaGithub className="h-6 w-6 inline" />
+              </a>
+              <a
+                href="https://www.linkedin.com/in/fardan-athilla-haidar-210943295/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-gray-400 transition"
+              >
+                <FaLinkedin className="h-6 w-6 inline" />
+              </a>
+            </div>
+
+            <p className="text-sm font-semibold text-white">
+              © {new Date().getFullYear()} Dibuat oleh{" "}
+              <span className="font-semibold text-white">
+                Fardan Athilla Haidar
+              </span>
+            </p>
+          </div>
+        </footer>
       </div>
     </div>
   );

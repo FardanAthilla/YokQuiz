@@ -79,7 +79,7 @@ const GachaWallpaper: React.FC = () => {
 
     let chosen: Wallpaper | null = null;
 
-    if ((gachaCount + 1) % 100 === 0) {
+    if ((gachaCount + 1) % 20 === 0) {
       const pityRarity = Math.random() < 0.5 ? "Legend" : "Exclusive"; // 50:50 chance
       const pityList = wallpapers.filter((w) => w.rarity === pityRarity);
       chosen = pityList[Math.floor(Math.random() * pityList.length)];
@@ -186,7 +186,7 @@ const GachaWallpaper: React.FC = () => {
 
             <p className="mt-2 italic capitalize">Rarity: {result.rarity}</p>
 
-            {gachaCount % 100 === 0 && (
+            {gachaCount % 20 === 0 && (
               <p className="mt-3 text-red-600 font-bold">🎉 Pity Reward</p>
             )}
 
@@ -213,7 +213,7 @@ const GachaWallpaper: React.FC = () => {
               <li>Exclusive: 1.5%</li>
             </ul>
             <p className="mt-4 text-sm text-gray-500 text-left">
-              Setiap 100x gacha, dijamin dapat 1 Legend/Exclusive Wallpaper
+              Setiap 20x gacha, dijamin dapat 1 Legend/Exclusive Wallpaper
               acak.
             </p>
             <p className="mt-1 text-sm text-gray-500 text-left">

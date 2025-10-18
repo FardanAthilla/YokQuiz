@@ -30,7 +30,7 @@ const Login: React.FC = () => {
       if (!userSnap.exists()) {
         // 🔹 Kalau belum ada, buat user baru dengan data awal
         await setDoc(userRef, {
-          coins: 100, // kamu bisa ubah default coin awal di sini
+          coins: 1000, // kamu bisa ubah default coin awal di sini
           gachaCount: 0,
           selectedWallpapers: null,
         });
